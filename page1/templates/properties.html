@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Property Management{% endblock %}
+
+{% block prop_management %}
+<div class="container my-4">
+
+  <h2 class="mb-4">Property Management</h2>
+
+  <!-- ADD PROPERTY FORM -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      Add New Property
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            {{ form.title.label_tag }} {{ form.title }}
+          </div>
+          <div class="col-md-6">
+            {{ form.price.label_tag }} {{ form.price }}
+          </div>
+
+          <div class="col-md-12">
+            {{ form.address.label_tag }} {{ form.address }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.city.label_tag }} {{ form.city }}
+          </div>
+          <div class="col-md-4">
+            {{ form.state.label_tag }} {{ form.state }}
+          </div>
+          <div class="col-md-4">
+            {{ form.zipcode.label_tag }} {{ form.zipcode }}
+          </div>
+
+          <div class="col-md-12">
+            {{ form.description.label_tag }} {{ form.description }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.bedrooms.label_tag }} {{ form.bedrooms }}
+          </div>
+          <div class="col-md-3">
+            {{ form.bathrooms.label_tag }} {{ form.bathrooms }}
+          </div>
+          <div class="col-md-3">
+            {{ form.garage.label_tag }} {{ form.garage }}
+          </div>
+          <div class="col-md-3">
+            {{ form.sqft.label_tag }} {{ form.sqft }}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.lot_size.label_tag }} {{ form.lot_size }}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.photo_main.label_tag }} {{ form.photo_main }}
+          </div>
+        </div>
+
+        <button class="btn btn-success mt-3">
+          Add Property
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- LISTING TABLE -->
+  <div class="card">
+    <div class="card-header bg-dark text-white">
+      My Listings
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>City</th>
+            <th>Price</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listing in listings %}
+            <tr>
+              <td>{{ listing.title }}</td>
+              <td>{{ listing.city }}</td>
+              <td>₹{{ listing.price }}</td>
+              <td>
+                {% if listing.is_published %}
+                  <span class="badge bg-success">Published</span>
+                {% else %}
+                  <span class="badge bg-secondary">Draft</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">
+                No properties added yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "login_base.html" %}
+
+{% block login_block %}
+
+      <form method="post" novalidate>
+        {%csrf_token%}
+
+        <h1 class="h3 mb-3 fw-normal">Login</h1>
+
+        <div class="form-floating mb-2">
+          
+            {{ form.email }}
+            {% for error in form.email.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+            <label for="floatingInput">Email</label>
+        </div>
+        <div class="form-floating mb-2">
+            {{ form.password }}
+            <label for="floatingInput">Password</label>
+        </div>
+
+        <button class="btn btn-primary w-100 py-2" type="submit">
+          login
+        </button>
+      <!--<p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2025</p> -->
+      </form>
+{% endblock  %}

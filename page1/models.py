@@ -4,9 +4,8 @@ from django.contrib.auth.models import User
 class Realtor(models.Model):
     user = models.OneToOneField(
         User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        on_delete=models.CASCADE,
+     related_name='realtor_profile'
     )
     name = models.CharField(max_length=200)
     photo = models.ImageField(upload_to='', blank=True)
@@ -37,7 +36,7 @@ class Listing(models.Model):
     garage = models.IntegerField()
     sqft = models.IntegerField()
     lot_size = models.DecimalField(max_digits=5, decimal_places=2)
-    photo_main = models.ImageField(upload_to='')
+    photo_main = models.ImageField(upload_to='',blank=True)
     is_published = models.BooleanField(default=True)
     list_date = models.DateTimeField(auto_now_add=True)
 

@@ -1,5 +1,6 @@
+
 <!doctype html>
-<html lang="en" class="h-100" data-bs-theme="auto">
+<html lang="en" data-bs-theme="auto">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,15 +10,16 @@
       content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
     />
     <meta name="generator" content="Astro v5.13.2" />
-    <title>{% block title %}Home{% endblock %}</title>
+    <title>Signin Template </title>
     <link
       rel="canonical"
-      href="https://getbootstrap.com/docs/5.3/examples/sticky-footer-navbar/"/>
+      href="https://getbootstrap.com/docs/5.3/examples/sign-in/"
+    />
     {% load static %}
     <script src="{% static "assets/js/color-modes.js" %}"></script>
     <link href="{% static "assets/dist/css/bootstrap.min.css" %}" rel="stylesheet" />
     <meta name="theme-color" content="#712cf9" />
-    <link href="sticky-footer-navbar.css" rel="stylesheet" />
+    <!-- <link href="sign-in.css" rel="stylesheet" /> -->
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -92,8 +94,35 @@
         display: block !important;
       }
     </style>
+    <style>
+        html,body {
+        height: 100%;
+        }
+
+        .form-signin {
+        max-width: 330px;
+        padding: 1rem;
+        }
+
+        .form-signin .form-floating:focus-within {
+        z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        }
+    </style>
+ 
   </head>
-  <body class="d-flex flex-column h-100">
+  <body class="d-flex align-items-center py-4 bg-body-tertiary">
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
       <symbol id="check2" viewBox="0 0 16 16">
         <path
@@ -119,8 +148,7 @@
         ></path>
       </symbol>
     </svg>
-    <div
-      class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle" >
+    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
       <button
         class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
         id="bd-theme"
@@ -133,8 +161,7 @@
         </svg>
         <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
       </button>
-      <ul
-        class="dropdown-menu dropdown-menu-end shadow"
+      <ul class="dropdown-menu dropdown-menu-end shadow"
         aria-labelledby="bd-theme-text">
         <li>
           <button
@@ -157,8 +184,7 @@
             type="button"
             class="dropdown-item d-flex align-items-center"
             data-bs-theme-value="dark"
-            aria-pressed="false"
-          >
+            aria-pressed="false">
             <svg class="bi me-2 opacity-50" aria-hidden="true">
               <use href="#moon-stars-fill"></use>
             </svg>
@@ -186,35 +212,13 @@
         </li>
       </ul>
     </div>
-
-{% include "components/nav_head.html" %}
-
-    <!-- Begin page content -->
-    <main class="flex-shrink-0">
-      {% comment %} <div class="container">
-        <h1 class="mt-5">Sticky footer with fixed navbar</h1>
-        <p class="lead">
-          Pin a footer to the bottom of the viewport in desktop browsers with
-          this custom HTML and CSS. A fixed navbar has been added with
-          <code class="small">padding-top: 60px;</code> on the
-          <code class="small">main &gt; .container</code>.
-        </p>
-      </div> {% endcomment %}
-      <div class='contianer'>
-      {% block image_grid %}
-      {% endblock %}
-      </div>
-
-      <div class='container'style="margin-top:50px;" >
-      {% block prop_management %}
-      {% endblock  %}
-      </div>
-
+    <main class="form-signin w-100 m-auto">
+      {% block register %}{% endblock  %}
+      {% block login_block %}{% endblock %}
     </main>
-{% include "components/footer.html" %}
     <script
       src="{% static "assets/dist/js/bootstrap.bundle.min.js" %}"
-      class="astro-vvvwv3sm">
-     </script>
+      class="astro-vvvwv3sm"
+    ></script>
   </body>
 </html>
