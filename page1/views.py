@@ -66,8 +66,7 @@ def logout_view(request):
 
 
 # Create your views here.
-def home(request):
-    return render(request, 'base.html')
+
 
 def album(request):
     listings = Listing.objects.filter(is_published=True).order_by('-list_date')
@@ -93,6 +92,23 @@ def album(request):
         listings = listings.filter(price__lte=max_price)
     
     return render(request, 'album_grid.html', {'listings': listings})
+
+
+def featured(request):
+    """Display featured properties and latest listings"""
+    featured_listings = Listing.objects.filter(
+        is_published=True, 
+        is_featured=True
+    ).order_by('-list_date')[:6]  # Limit to 6 featured properties
+    
+    latest_listings = Listing.objects.filter(
+        is_published=True
+    ).order_by('-list_date')[:9]  # Limit to 9 latest properties
+    
+    return render(request, 'featured.html', {
+        'featured_listings': featured_listings,
+        'latest_listings': latest_listings
+    })
 
 
 

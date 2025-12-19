@@ -38,6 +38,7 @@ class Listing(models.Model):
     lot_size = models.DecimalField(max_digits=5, decimal_places=2)
     photo_main = models.ImageField(upload_to='',blank=True)
     is_published = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
     list_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

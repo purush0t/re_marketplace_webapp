@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block image_grid %}
+
+<!-- FEATURED PROPERTIES SECTION -->
+<div class="py-5">
+  <h2 class="mb-4">Featured Properties</h2>
+  {% if featured_listings %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      {% for listing in featured_listings %}
+      <div class="col">
+        <div class="card shadow-sm border-warning">
+          <div class="card-header bg-warning text-dark">
+            <small><strong>⭐ FEATURED</strong></small>
+          </div>
+          
+          {% if listing.photo_main %}
+            <img src="{{ listing.photo_main.url }}"
+                 class="card-img-top"
+                 style="height:225px; object-fit:cover;">
+          {% else %}
+            <svg class="bd-placeholder-img card-img-top"
+                 height="225" width="100%">
+              <rect width="100%" height="100%" fill="#55595c"></rect>
+              <text x="50%" y="50%" fill="#eceeef" dy=".3em">
+                No Image
+              </text>
+            </svg>
+          {% endif %}
+
+          <div class="card-body">
+            <h6>{{ listing.title }}</h6>
+            <p class="card-text">
+              {{ listing.city }}, {{ listing.state }} <br>
+              <strong>${{ listing.price|floatformat:0 }}</strong>
+            </p>
+            <p class="card-text">
+              <small>{{ listing.description|truncatewords:15 }}</small>
+            </p>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+              <small class="text-muted">
+                {{ listing.bedrooms }} bed • {{ listing.bathrooms }} bath • {{ listing.garage }} car
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted text-center">No featured properties available.</p>
+  {% endif %}
+</div>
+
+<!-- DIVIDER -->
+<hr class="my-5">
+
+<!-- LATEST PROPERTIES SECTION -->
+<div class="py-5">
+  <h2 class="mb-4">Latest Property Listings</h2>
+  {% if latest_listings %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      {% for listing in latest_listings %}
+      <div class="col">
+        <div class="card shadow-sm">
+          {% if listing.photo_main %}
+            <img src="{{ listing.photo_main.url }}"
+                 class="card-img-top"
+                 style="height:225px; object-fit:cover;">
+          {% else %}
+            <svg class="bd-placeholder-img card-img-top"
+                 height="225" width="100%">
+              <rect width="100%" height="100%" fill="#55595c"></rect>
+              <text x="50%" y="50%" fill="#eceeef" dy=".3em">
+                No Image
+              </text>
+            </svg>
+          {% endif %}
+
+          <div class="card-body">
+            <h6>{{ listing.title }}</h6>
+            <p class="card-text">
+              {{ listing.city }}, {{ listing.state }} <br>
+              <strong>${{ listing.price|floatformat:0 }}</strong>
+            </p>
+            <p class="card-text">
+              <small>{{ listing.description|truncatewords:15 }}</small>
+            </p>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+              <small class="text-muted">
+                {{ listing.bedrooms }} bed • {{ listing.bathrooms }} bath • {{ listing.garage }} car
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted text-center">No listings available.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
