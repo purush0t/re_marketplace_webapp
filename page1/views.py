@@ -70,7 +70,29 @@ def home(request):
     return render(request, 'base.html')
 
 def album(request):
-    return render(request, 'album_grid.html')
+    listings = Listing.objects.filter(is_published=True).order_by('-list_date')
+    
+    # Filter by keyword
+    if 'keyword' in request.GET:
+        keyword = request.GET['keyword']
+        listings = listings.filter(title__icontains=keyword)
+    
+    # Filter by city
+    if 'city' in request.GET:
+        city = request.GET['city']
+        listings = listings.filter(city__icontains=city)
+    
+    # Filter by bedrooms
+    if 'bedrooms' in request.GET and request.GET['bedrooms']:
+        bedrooms = int(request.GET['bedrooms'])
+        listings = listings.filter(bedrooms__gte=bedrooms)
+    
+    # Filter by max price
+    if 'max_price' in request.GET and request.GET['max_price']:
+        max_price = int(request.GET['max_price'])
+        listings = listings.filter(price__lte=max_price)
+    
+    return render(request, 'album_grid.html', {'listings': listings})
 
 
 
@@ -100,15 +122,27 @@ def realtor_properties(request):
     })
 
 
+
 def listings(request):
     qs = Listing.objects.filter(is_published=True)
 
-    if request.GET.get('city'):
-        qs = qs.filter(city__icontains=request.GET['city'])
+    keyword = request.GET.get('keyword')
+    city = request.GET.get('city')
+    bedrooms = request.GET.get('bedrooms')
+    max_price = request.GET.get('max_price')
 
-    if request.GET.get('max_price'):
-        qs = qs.filter(price__lte=request.GET['max_price'])
+    if keyword:
+        qs = qs.filter(title__icontains=keyword)
 
-    return render(request, 'listings/grid.html', {
+    if city:
+        qs = qs.filter(city__icontains=city)
+
+    if bedrooms:
+        qs = qs.filter(bedrooms__gte=bedrooms)
+
+    if max_price:
+        qs = qs.filter(price__lte=max_price)
+
+    return render(request, 'album_grid.html', {
         'listings': qs
     })
