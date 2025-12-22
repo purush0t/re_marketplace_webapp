@@ -21,7 +21,7 @@ class Realtor(models.Model):
 class Listing(models.Model):
     realtor = models.ForeignKey(
         Realtor,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         related_name='listings'
     )
     title = models.CharField(max_length=200)
@@ -32,7 +32,7 @@ class Listing(models.Model):
     description = models.TextField(blank=True)
     price = models.IntegerField()
     bedrooms = models.IntegerField()
-    bathrooms = models.DecimalField(max_digits=4, decimal_places=1)
+    bathrooms = models.IntegerField()
     garage = models.IntegerField()
     sqft = models.IntegerField()
     lot_size = models.DecimalField(max_digits=5, decimal_places=2)
@@ -43,6 +43,24 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class PropertyImage(models.Model):
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(upload_to='')
+    caption = models.CharField(max_length=200, blank=True)
+    is_featured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_featured', 'created_at']
+
+    def __str__(self):
+        return f"Image for {self.listing.title}"
 
 
 class Contact(models.Model):

@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
-from .models import Listing,Realtor
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Listing, Realtor
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .forms import ListingForm, LoginForm, UserRegisterForm
 
 
@@ -50,9 +51,11 @@ def login_view(request):
                 )
                 if user:
                     login(request, user)
-                    return redirect('home')
+                    return redirect('featured')  # or another page
+                else:
+                    messages.error(request, 'Invalid email or password')
             except User.DoesNotExist:
-                pass
+                messages.error(request, 'Invalid email or password')
     else:
         form = LoginForm()
 
@@ -116,7 +119,7 @@ def featured(request):
 def realtor_properties(request):
     #  Block non-realtors
     if not hasattr(request.user, 'realtor_profile'):
-        return redirect('home')
+        return redirect('featured')
 
     realtor = request.user.realtor_profile
 
@@ -126,6 +129,18 @@ def realtor_properties(request):
             listing = form.save(commit=False)
             listing.realtor = realtor
             listing.save()
+            
+            # Handle multiple image uploads
+            images = request.FILES.getlist('images')
+            for idx, image in enumerate(images[:6]):  # Limit to 6 images
+                from .models import PropertyImage
+                PropertyImage.objects.create(
+                    listing=listing,
+                    image=image,
+                    is_featured=(idx == 0)  # First image as featured
+                )
+            
+            messages.success(request, 'Property added successfully!')
             return redirect('realtor_properties')
     else:
         form = ListingForm()
@@ -162,3 +177,8 @@ def listings(request):
     return render(request, 'album_grid.html', {
         'listings': qs
     })
+
+
+def listing_detail(request, id):
+    listing = get_object_or_404(Listing, id=id)
+    return render(request, 'listing_detail.html', {'listing': listing})

@@ -78,6 +78,25 @@
         --bs-btn-active-bg: #5a23c8;
         --bs-btn-active-border-color: #5a23c8;
       }
+      /* Theme color utility classes */
+      .text-theme {
+        color: #712cf9;
+      }
+      .bg-theme {
+        background-color: #712cf9;
+      }
+      @media (prefers-color-scheme: dark) {
+        .text-theme {
+          color: #a78bfa;
+        }
+      }
+      a.text-theme {
+        text-decoration: none;
+        font-weight: 500;
+      }
+      a.text-theme:hover {
+        opacity: 0.8;
+      }
       .bd-mode-toggle {
         z-index: 1500;
       }

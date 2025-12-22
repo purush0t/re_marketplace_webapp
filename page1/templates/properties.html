@@ -8,8 +8,8 @@
 
   <!-- ADD PROPERTY FORM -->
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      Add New Property
+    <div class="card-header bg-bd-primary text-white">
+      <h5 class="mb-0">Add New Property</h5>
     </div>
     <div class="card-body">
       <form method="post" enctype="multipart/form-data">
@@ -59,11 +59,20 @@
           </div>
 
           <div class="col-md-6">
-            {{ form.photo_main.label_tag }} {{ form.photo_main }}
+            <label for="id_is_featured">Featured Property</label>
+            {{ form.is_featured }}
+          </div>
+
+          <div class="col-md-12">
+            <label>Upload Property Images <small class="text-muted">(up to 6 images)</small></label>
+            {{ form.images }}
+            {% if form.images.help_text %}
+              <small class="form-text text-muted d-block mt-1">{{ form.images.help_text|safe }}</small>
+            {% endif %}
           </div>
         </div>
 
-        <button class="btn btn-success mt-3">
+        <button class="btn btn-bd-primary mt-3">
           Add Property
         </button>
       </form>
@@ -72,7 +81,7 @@
 
   <!-- LISTING TABLE -->
   <div class="card">
-    <div class="card-header bg-dark text-white">
+    <div class="card-header bg-bd-primary text-white">
       My Listings
     </div>
     <div class="card-body p-0">

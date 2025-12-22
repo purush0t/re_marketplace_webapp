@@ -2,7 +2,7 @@
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark sticky-top bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="login">RE marketplace</a>
+      <a class="navbar-brand" href="{% url 'featured' %}">RE marketplace</a>
       {% if user.is_authenticated %}
         <span class="navbar-text me-3">Welcome, <strong>{{ user.username }}</strong></span>
       {% endif %}
@@ -11,14 +11,24 @@
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav ms-auto mb-2 mb-md-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="">Home</a>
+            <a class="nav-link active" aria-current="page" href="{% url 'featured' %}">Home</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'album' %}">Browse Properties</a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.realtor_profile %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'realtor_properties' %}">Add Property</a>
+          </li>
+            {% endif %}
+          {% endif %}
 
           <li class="nav-item">
             {% if user.is_authenticated %}
               <a class="nav-link" href="{% url 'logout_view' %}">Logout</a>
             {% else %}
-              <a class="nav-link" href="{% url 'login_view' %}">Login</a>
+              <a class="nav-link" href="{% url 'register' %}">Login / Sign up</a>
             {% endif %}    
           </li>
           {% comment %} <li class="nav-item">

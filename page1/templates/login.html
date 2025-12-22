@@ -2,6 +2,10 @@
 
 {% block login_block %}
 
+      <div class="mb-4">
+        <a href="{% url 'featured' %}" class="btn btn-outline-secondary">← Back to Home</a>
+      </div>
+
       <form method="post" novalidate>
         {%csrf_token%}
 
@@ -20,9 +24,14 @@
             <label for="floatingInput">Password</label>
         </div>
 
-        <button class="btn btn-primary w-100 py-2" type="submit">
+        <button class="btn btn-bd-primary w-100 py-2" type="submit">
           login
         </button>
-      <!--<p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2025</p> -->
-      </form>
+        <!--<p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2025</p> -->
+        </form>
+
+        <div class="text-center mt-4 small">
+          <p class="mb-2">Don't have an account? <a href="{% url 'register' %}" class="fw-semibold" style="color: var(--bd-violet-bg);">Sign up here</a></p>
+          <p class="mb-0">Need help? Call us: <a href="tel:+919000099999" class="fw-semibold" style="color: var(--bd-violet-bg);">+91 90000-99999</a></p>
+        </div>
 {% endblock  %}

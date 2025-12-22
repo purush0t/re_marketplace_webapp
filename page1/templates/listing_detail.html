@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block image_grid %}
+
+<div class="py-5">
+  <div class="row">
+    <!-- Main Image Section -->
+    <div class="col-lg-8">
+      <!-- Main Image Gallery -->
+      <div id="propertyCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% with images=listing.images.all %}
+            {% if images %}
+              {% for image in images %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ image.image.url }}"
+                       class="d-block w-100 rounded"
+                       style="height: 500px; object-fit: cover;">
+                  {% if image.caption %}
+                    <div class="carousel-caption d-none d-md-block">
+                      <h5>{{ image.caption }}</h5>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% elif listing.photo_main %}
+              <div class="carousel-item active">
+                <img src="{{ listing.photo_main.url }}"
+                     class="d-block w-100 rounded"
+                     style="height: 500px; object-fit: cover;">
+              </div>
+            {% else %}
+              <div class="carousel-item active">
+                <svg class="w-100"
+                     height="500">
+                  <rect width="100%" height="100%" fill="#55595c"></rect>
+                  <text x="50%" y="50%" fill="#eceeef" dy=".3em" text-anchor="middle">
+                    No Image Available
+                  </text>
+                </svg>
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+        {% if listing.images.count > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        {% endif %}
+      </div>
+
+      <!-- Thumbnail Gallery -->
+      {% if listing.images.count > 1 %}
+        <div class="row g-2 mb-4">
+          {% for image in listing.images.all %}
+            <div class="col-3">
+              <img src="{{ image.image.url }}"
+                   class="img-fluid rounded"
+                   style="height: 100px; object-fit: cover; cursor: pointer;"
+                   onclick="document.querySelector('#propertyCarousel').querySelector('[data-bs-slide-to=\'{{ forloop.counter0 }}\']').click();">
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Property Details -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title">{{ listing.title }}</h2>
+          <p class="text-muted">{{ listing.address }}, {{ listing.city }}, {{ listing.state }} {{ listing.zipcode }}</p>
+          
+          <h4 class="text-bd-primary mb-3">₹{{ listing.price|floatformat:0 }}</h4>
+
+          <!-- Property Info Grid -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <dl class="row">
+                <dt class="col-sm-6">Bedrooms:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.bedrooms }}</strong></dd>
+                
+                <dt class="col-sm-6">Bathrooms:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.bathrooms }}</strong></dd>
+                
+                <dt class="col-sm-6">Garage Spaces:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.garage }}</strong></dd>
+              </dl>
+            </div>
+            <div class="col-md-6">
+              <dl class="row">
+                <dt class="col-sm-6">Square Feet:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.sqft }}</strong></dd>
+                
+                <dt class="col-sm-6">Lot Size:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.lot_size }} acres</strong></dd>
+                
+                <dt class="col-sm-6">Listed Date:</dt>
+                <dd class="col-sm-6"><strong>{{ listing.list_date|date:"M d, Y" }}</strong></dd>
+              </dl>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <h5 class="mt-4 mb-3">Property Description</h5>
+          <p>{{ listing.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Realtor Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-bd-primary text-white">
+          <h5 class="card-title mb-0">Property Agent</h5>
+        </div>
+        <div class="card-body">
+          {% if listing.realtor.photo %}
+            <img src="{{ listing.realtor.photo.url }}"
+                 class="img-fluid rounded-circle mb-3"
+                 style="width: 100px; height: 100px; object-fit: cover;">
+          {% endif %}
+          
+          <h6>{{ listing.realtor.name }}</h6>
+          {% if listing.realtor.is_mvp %}
+            <span class="badge bg-bd-primary mb-2">⭐ MVP Agent</span>
+          {% endif %}
+          
+          <p class="small mb-2">
+            <strong>Email:</strong> <a href="mailto:{{ listing.realtor.email }}">{{ listing.realtor.email }}</a>
+          </p>
+          
+          {% if listing.realtor.phone %}
+            <p class="small mb-3">
+              <strong>Phone:</strong> <a href="tel:{{ listing.realtor.phone }}">{{ listing.realtor.phone }}</a>
+            </p>
+          {% endif %}
+
+          {% if listing.realtor.description %}
+            <p class="small">
+              <strong>About:</strong><br>
+              {{ listing.realtor.description }}
+            </p>
+          {% endif %}
+          
+          <a href="mailto:{{ listing.realtor.email }}" class="btn btn-bd-primary w-100 mt-3">Contact Agent</a>
+        </div>
+      </div>
+
+      <!-- Quick Info Card -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Quick Summary</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <td>Property Status:</td>
+                <td><span class="badge bg-success">Published</span></td>
+              </tr>
+              <tr>
+                <td>Featured:</td>
+                <td>
+                  {% if listing.is_featured %}
+                    <span class="badge bg-warning text-dark">Yes ⭐</span>
+                  {% else %}
+                    <span class="badge bg-secondary">No</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="mt-4">
+    <a href="{% url 'album' %}" class="btn btn-outline-secondary">← Back to Listings</a>
+  </div>
+</div>
+
+{% endblock %}

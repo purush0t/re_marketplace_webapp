@@ -93,6 +93,16 @@
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
       }
+      /* Theme color utility classes */
+      .text-theme {
+        color: var(--bd-violet-bg) !important;
+      }
+      .bg-theme {
+        background-color: var(--bd-violet-bg) !important;
+      }
+      a.text-theme:hover {
+        opacity: 0.8;
+      }
     </style>
     <style>
         html,body {
@@ -123,6 +133,16 @@
  
   </head>
   <body class="d-flex align-items-center py-4 bg-body-tertiary">
+    {% if messages %}
+    <div class="container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
       <symbol id="check2" viewBox="0 0 16 16">
         <path

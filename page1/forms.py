@@ -1,6 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Listing
+from .models import Listing, PropertyImage
+
+
+# Custom widget for multiple file uploads
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
 
 
 class UserRegisterForm(forms.ModelForm):
@@ -55,15 +60,30 @@ class LoginForm(forms.Form):
     )
 
 
-
-
-
+class PropertyImageForm(forms.ModelForm):
+    class Meta:
+        model = PropertyImage
+        fields = ['image', 'caption']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'caption': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Image caption (optional)'}),
+        }
 
 
 class ListingForm(forms.ModelForm):
+    images = forms.FileField(
+        widget=MultipleFileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        }),
+        required=False,
+        label='Upload Images (up to 6)',
+        help_text='Select multiple image files'
+    )
+
     class Meta:
         model = Listing
-        exclude = ['realtor', 'is_published', 'list_date']
+        exclude = ['realtor', 'is_published', 'list_date', 'photo_main']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
@@ -73,11 +93,10 @@ class ListingForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'bedrooms': forms.NumberInput(attrs={'class': 'form-control'}),
-            'bathrooms': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
+            'bathrooms': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),
             'garage': forms.NumberInput(attrs={'class': 'form-control'}),
             'sqft': forms.NumberInput(attrs={'class': 'form-control'}),
             'lot_size': forms.NumberInput(attrs={'class': 'form-control'}),
-            'photo_main': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-
 
