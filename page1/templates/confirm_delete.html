@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Confirm Delete{% endblock %}
+
+{% block prop_management %}
+<div class="container my-5">
+  <div class="card">
+    <div class="card-body">
+      <h5>Are you sure you want to delete: <strong>{{ listing.title }}</strong>?</h5>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Yes, delete</button>
+        <a href="{% url 'realtor_properties' %}" class="btn btn-secondary mt-3 ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

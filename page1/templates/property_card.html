@@ -6,6 +6,10 @@
 
   {% if listing.photo_main %}
     <img src="{{ listing.photo_main.url }}" class="card-img-top" style="height:225px; object-fit:cover;">
+  {% elif listing.images.all|length > 0 %}
+    {% with first_image=listing.images.all.0 %}
+      <img src="{{ first_image.image.url }}" class="card-img-top" style="height:225px; object-fit:cover;">
+    {% endwith %}
   {% else %}
     <svg class="bd-placeholder-img card-img-top" height="225" width="100%">
       <rect width="100%" height="100%" fill="#55595c"></rect>

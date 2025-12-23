@@ -65,14 +65,15 @@
 
           <div class="col-md-12">
             <label>Upload Property Images <small class="text-muted">(up to 6 images)</small></label>
-            {{ form.images }}
+            <input type="file" name="images" id="id_images" class="form-control" accept="image/*" multiple>
+            <small class="form-text text-muted d-block mt-1">Recommended: 1600×1200 px (or similar 4:3), max 2MB per image. Large random dimensions may cause pixelation when displayed.</small>
             {% if form.images.help_text %}
               <small class="form-text text-muted d-block mt-1">{{ form.images.help_text|safe }}</small>
             {% endif %}
           </div>
         </div>
 
-        <button class="btn btn-bd-primary mt-3">
+        <button type="submit" class="btn btn-bd-primary mt-3">
           Add Property
         </button>
       </form>
@@ -92,6 +93,7 @@
             <th>City</th>
             <th>Price</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -106,6 +108,12 @@
                 {% else %}
                   <span class="badge bg-secondary">Draft</span>
                 {% endif %}
+              </td>
+              <td>
+                <form method="post" action="{% url 'delete_property' listing.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this property?');">Remove</button>
+                </form>
               </td>
             </tr>
           {% empty %}

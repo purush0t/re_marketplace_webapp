@@ -1,5 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
+from io import BytesIO
+import os
+from django.core.files.base import ContentFile
+from PIL import Image
+
+
+def property_image_upload_path(instance, filename):
+    """Upload path: property_images/listing_<id>/<filename>
+
+    Assumes `instance.listing` is set and listing.pk exists (our flow saves
+    the listing before creating PropertyImage)."""
+    listing_id = getattr(instance.listing, 'id', None) or 'unknown'
+    return f'property_images/listing_{listing_id}/{filename}'
 # Create your models here.
 class Realtor(models.Model):
     user = models.OneToOneField(
@@ -51,7 +64,7 @@ class PropertyImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    image = models.ImageField(upload_to='')
+    image = models.ImageField(upload_to=property_image_upload_path)
     caption = models.CharField(max_length=200, blank=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,6 +74,51 @@ class PropertyImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.listing.title}"
+
+    def save(self, *args, **kwargs):
+        """Save and resize the image to reasonable dimensions to save space.
+
+        This opens the saved image (FieldFile), creates a resized version
+        and writes it back to the same field. Works with local storage
+        (development)."""
+        # First save to ensure `self.image.path` is available
+        super().save(*args, **kwargs)
+
+        try:
+            img_path = self.image.path
+        except Exception:
+            # If storage backend doesn't provide a local path, bail out
+            return
+
+        try:
+            img = Image.open(img_path)
+            max_size = (1600, 1200)
+            img.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+            # Prepare buffer and save optimized image
+            buffer = BytesIO()
+            fmt = 'JPEG'
+            if img.mode in ("RGBA", "LA"):
+                # Convert images with alpha to RGB with white background
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[3])
+                img = background
+            else:
+                img = img.convert('RGB')
+
+            img.save(buffer, format=fmt, quality=80, optimize=True)
+            buffer.seek(0)
+
+            # Replace the image file without changing the name
+            name = os.path.basename(self.image.name)
+            self.image.save(name, ContentFile(buffer.read()), save=False)
+            buffer.close()
+
+            # Final save to update any DB fields
+            super().save(update_fields=['image'])
+        except Exception:
+            # If anything goes wrong, don't crash the request — keep original image
+            return
 
 
 class Contact(models.Model):

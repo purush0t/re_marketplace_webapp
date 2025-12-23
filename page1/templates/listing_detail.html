@@ -60,10 +60,14 @@
         <div class="row g-2 mb-4">
           {% for image in listing.images.all %}
             <div class="col-3">
-              <img src="{{ image.image.url }}"
-                   class="img-fluid rounded"
-                   style="height: 100px; object-fit: cover; cursor: pointer;"
-                   onclick="document.querySelector('#propertyCarousel').querySelector('[data-bs-slide-to=\'{{ forloop.counter0 }}\']').click();">
+              <div class="thumb-container rounded overflow-hidden" style="height:100px;">
+                <img src="{{ image.image.url }}"
+                     class="w-100 h-100"
+                     role="button"
+                     data-bs-target="#propertyCarousel"
+                     data-bs-slide-to="{{ forloop.counter0 }}"
+                     style="object-fit: cover; cursor: pointer; display:block;">
+              </div>
             </div>
           {% endfor %}
         </div>

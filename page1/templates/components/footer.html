@@ -17,7 +17,7 @@
             <ul class="list-unstyled small">
               <li class="mb-2"><a href="{% url 'featured' %}" class="text-decoration-none text-theme">Home</a></li>
               <li class="mb-2"><a href="{% url 'album' %}" class="text-decoration-none text-theme">Browse Properties</a></li>
-              <li class="mb-2"><a href="{% url 'register' %}" class="text-decoration-none text-theme">Register</a></li>
+              <li class="mb-2"><a href="{% url 'signup' %}" class="text-decoration-none text-theme">Signup</a></li>
               <li class="mb-2"><a href="#" class="text-decoration-none text-theme">About Us</a></li>
               <li class="mb-2"><a href="#" class="text-decoration-none text-theme">Contact</a></li>
             </ul>
@@ -30,7 +30,7 @@
               List your properties and reach thousands of potential buyers. Join our network of professional real estate agents.
             </p>
             {% if not user.is_authenticated %}
-            <a href="{% url 'register' %}" class="btn btn-sm btn-bd-primary">Become a Realtor</a>
+            <a href="{% url 'signup' %}" class="btn btn-sm btn-bd-primary">Become a Realtor</a>
             {% endif %}
           </div>
         </div>
