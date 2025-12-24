@@ -81,52 +81,128 @@
   </div>
 
   <!-- LISTING TABLE -->
-  <div class="card">
+  <div class="card mb-4">
     <div class="card-header bg-bd-primary text-white">
-      My Listings
+      <ul class="nav nav-tabs card-header-tabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active text-white" id="listings-tab" data-bs-toggle="tab" href="#listings-panel" role="tab">
+            My Listings
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" id="inquiries-tab" data-bs-toggle="tab" href="#inquiries-panel" role="tab">
+            Inquiries <span class="badge bg-danger ms-2" id="inquiry-count">0</span>
+          </a>
+        </li>
+      </ul>
     </div>
     <div class="card-body p-0">
-      <table class="table table-striped mb-0">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>City</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for listing in listings %}
-            <tr>
-              <td>{{ listing.title }}</td>
-              <td>{{ listing.city }}</td>
-              <td>₹{{ listing.price }}</td>
-              <td>
-                {% if listing.is_published %}
-                  <span class="badge bg-success">Published</span>
-                {% else %}
-                  <span class="badge bg-secondary">Draft</span>
-                {% endif %}
-              </td>
-              <td>
-                <form method="post" action="{% url 'delete_property' listing.id %}" style="display:inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this property?');">Remove</button>
-                </form>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="4" class="text-center">
-                No properties added yet.
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="tab-content">
+        <!-- LISTINGS TAB -->
+        <div class="tab-pane fade show active" id="listings-panel" role="tabpanel">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>City</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for listing in listings %}
+                <tr>
+                  <td>{{ listing.title }}</td>
+                  <td>{{ listing.city }}</td>
+                  <td>₹{{ listing.price }}</td>
+                  <td>
+                    {% if listing.is_published %}
+                      <span class="badge bg-success">Published</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Draft</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="post" action="{% url 'delete_property' listing.id %}" style="display:inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this property?');">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center py-4">
+                    No properties added yet.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- INQUIRIES TAB -->
+        <div class="tab-pane fade" id="inquiries-panel" role="tabpanel">
+          {% if inquiries %}
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Inquiry From</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for inquiry in inquiries %}
+                  <tr>
+                    <td>
+                      <strong>{{ inquiry.listing_title }}</strong><br>
+                      <small class="text-muted">{{ inquiry.listing.address }}</small>
+                    </td>
+                    <td>{{ inquiry.name }}</td>
+                    <td>
+                      <a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a>
+                    </td>
+                    <td>
+                      <a href="tel:{{ inquiry.phone }}">{{ inquiry.phone }}</a>
+                    </td>
+                    <td>
+                      {% if inquiry.message %}
+                        <small>{{ inquiry.message|truncatewords:10 }}</small>
+                      {% else %}
+                        <em class="text-muted">No message</em>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <small>{{ inquiry.contact_date|date:"M d, Y H:i" }}</small>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="text-center py-4">
+              <p class="text-muted">No inquiries yet. When someone contacts you about a property, it will appear here.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 
+
 </div>
 {% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const inquiryCount = document.querySelectorAll('#inquiries-panel tbody tr').length;
+  const inquiryCountBadge = document.getElementById('inquiry-count');
+  if (inquiryCountBadge) {
+    inquiryCountBadge.textContent = inquiryCount;
+  }
+});
+</script>

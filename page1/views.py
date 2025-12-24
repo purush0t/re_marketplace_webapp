@@ -1,16 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Listing, Realtor
-from django.http import HttpResponseForbidden
+from .models import Listing, Realtor, Contact
+from django.http import HttpResponseForbidden, JsonResponse
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import ListingForm, LoginForm, UserRegisterForm
+from .forms import ListingForm, LoginForm, UserRegisterForm, ContactAgentForm
 from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Optional: try to import pebble for parallel resizing; fall back to ThreadPoolExecutor
 try:
@@ -71,7 +77,7 @@ def login_view(request):
     else:
         form = LoginForm()
 
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {'form': form, 'suppress_messages': True})
 
 def logout_view(request):
     logout(request)
@@ -206,10 +212,16 @@ def realtor_properties(request):
         form = ListingForm()
 
     listings = Listing.objects.filter(realtor=realtor).order_by('-list_date')
+    
+    # Get inquiries for this realtor's listings
+    inquiries = Contact.objects.filter(
+        listing__realtor=realtor
+    ).order_by('-contact_date')
 
     return render(request, 'properties.html', {
         'form': form,
-        'listings': listings
+        'listings': listings,
+        'inquiries': inquiries
     })
 
 
@@ -241,7 +253,113 @@ def listings(request):
 
 def listing_detail(request, id):
     listing = get_object_or_404(Listing, id=id)
-    return render(request, 'listing_detail.html', {'listing': listing})
+    form = ContactAgentForm()
+    return render(request, 'listing_detail.html', {'listing': listing, 'contact_form': form})
+
+
+def contact_agent(request, id):
+    """Handle contact agent form submission"""
+    listing = get_object_or_404(Listing, id=id)
+    
+    if request.method == 'POST':
+        form = ContactAgentForm(request.POST)
+        if form.is_valid():
+            # Create the contact record
+            contact = form.save(commit=False)
+            contact.listing = listing
+            contact.listing_title = listing.title
+            if request.user.is_authenticated:
+                contact.user_id = request.user.id
+            contact.save()
+            
+            # Prepare email content with property summary
+            subject = f"New Inquiry for Property: {listing.title}"
+            
+            message_body = f"""
+New Property Inquiry
+
+A potential buyer has shown interest in your property listing.
+
+--- PROPERTY DETAILS ---
+Title: {listing.title}
+Address: {listing.address}, {listing.city}, {listing.state} {listing.zipcode}
+Price: ₹{listing.price:,}
+Bedrooms: {listing.bedrooms}
+Bathrooms: {listing.bathrooms}
+Garage: {listing.garage}
+Square Feet: {listing.sqft}
+Lot Size: {listing.lot_size} acres
+
+--- BUYER INFORMATION ---
+Name: {contact.name}
+Email: {contact.email}
+Phone: {contact.phone}
+
+--- MESSAGE ---
+{contact.message if contact.message else '(No message provided)'}
+
+---
+To view this inquiry and respond, visit your dashboard at:
+{request.build_absolute_uri(reverse('realtor_properties'))}
+"""
+            
+            # Log email backend and addresses to help debug delivery
+            try:
+                backend = getattr(settings, 'EMAIL_BACKEND', 'not-set')
+            except Exception:
+                backend = 'error_reading'
+            logger.info('Sending contact email using backend=%s from=%s to=%s', backend, getattr(settings, 'DEFAULT_FROM_EMAIL', None), listing.realtor.email)
+
+            # Send email to the realtor
+            try:
+                send_mail(
+                    subject=subject,
+                    message=message_body,
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL'),
+                    recipient_list=[listing.realtor.email],
+                    fail_silently=False,
+                )
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Thank you! Your inquiry has been sent to the agent.'
+                    })
+                else:
+                    messages.success(request, 'Thank you! Your inquiry has been sent to the agent.')
+                    return redirect('listing_detail', id=listing.id)
+            except Exception as e:
+                # Log full exception for debugging
+                logger.exception('Error sending contact email')
+
+                # When in DEBUG, include the exception text in the JSON response to aid debugging
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    resp = {
+                        'success': False,
+                        'message': 'Error sending email. Please try again later.'
+                    }
+                    if getattr(settings, 'DEBUG', False):
+                        resp['error'] = str(e)
+                    return JsonResponse(resp, status=500)
+                else:
+                    # For non-AJAX, show a short message; include details when DEBUG
+                    if getattr(settings, 'DEBUG', False):
+                        messages.error(request, f'Error sending inquiry: {e}')
+                    else:
+                        messages.error(request, 'Error sending inquiry. Please try again.')
+                    return redirect('listing_detail', id=listing.id)
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': form.errors
+                }, status=400)
+            else:
+                messages.error(request, 'Please fill in all required fields.')
+                return redirect('listing_detail', id=listing.id)
+    
+    return redirect('listing_detail', id=listing.id)
+
 
 
 @login_required

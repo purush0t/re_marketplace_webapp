@@ -27,6 +27,11 @@
         <button class="btn btn-bd-primary w-100 py-2" type="submit">
           login
         </button>
+        {% for message in messages %}
+          <div class="text-center mt-2">
+            <small class="text-danger">{{ message }}</small>
+          </div>
+        {% endfor %}
         <!--<p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2025</p> -->
         </form>
 

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Listing, PropertyImage
+from .models import Listing, PropertyImage, Contact
 
 
 # Custom widget for multiple file uploads
@@ -98,4 +98,34 @@ class ListingForm(forms.ModelForm):
             'lot_size': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+
+class ContactAgentForm(forms.ModelForm):
+    """Form for buyers to contact the property agent"""
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'phone', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Full Name',
+                'required': True
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Email Address',
+                'required': True
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Phone Number',
+                'required': True
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your Message (Optional)',
+                'rows': 4
+            }),
+        }
+
 
