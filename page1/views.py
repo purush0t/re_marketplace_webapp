@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Listing, Realtor, Contact
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
@@ -380,3 +380,96 @@ def delete_property(request, id):
 
     # If not POST, show a simple confirm page (reuse properties template area)
     return render(request, 'confirm_delete.html', {'listing': listing})
+
+
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate
+
+
+
+
+def return_pdf(request):
+    # Generate a stylized PDF table of Contact inquiries.
+    buffer = BytesIO()
+
+    from reportlab.lib import colors
+    from reportlab.platypus import Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=24, leftMargin=24, topMargin=24, bottomMargin=18)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('Title', parent=styles['Heading1'], alignment=1, textColor=colors.HexColor('#1F4E79'))
+
+    story = []
+    story.append(Paragraph('Contacts Report', title_style))
+    story.append(Spacer(1, 6))
+
+    headers = ['ID', 'Listing', 'Name', 'Phone', 'Message', 'Date']
+    data = [headers]
+
+    # Small paragraph styles to allow wrapping inside table cells
+    listing_style = ParagraphStyle('listing', parent=styles['BodyText'], fontSize=9, leading=11)
+    message_style = ParagraphStyle('message', parent=styles['BodyText'], fontSize=8, leading=10)
+    small_style = ParagraphStyle('small', parent=styles['BodyText'], fontSize=8, leading=10)
+
+    contacts = Contact.objects.select_related('listing').order_by('-contact_date')[:200]
+    for c in contacts:
+        listing_title = c.listing_title or (c.listing.title if getattr(c, 'listing', None) else '')
+        # Use Paragraphs so long text wraps instead of pushing outside page
+        listing_para = Paragraph(listing_title, listing_style)
+        message_text = (c.message or '')
+        if len(message_text) > 200:
+            message_text = message_text[:197] + '...'
+        message_para = Paragraph(message_text.replace('\n', '<br/>'), message_style)
+        date_str = c.contact_date.strftime('%Y-%m-%d %H:%M') if getattr(c, 'contact_date', None) else ''
+
+        data.append([
+            str(c.id),
+            listing_para,
+            Paragraph(c.name or '', small_style),
+            Paragraph(c.phone or '', small_style),
+            message_para,
+            Paragraph(date_str, small_style),
+        ])
+
+    # Set column widths to fit A4 usable width (A4 width 595pt minus margins 24+24 = 547)
+    # Columns: ID, Listing, Name, Phone, Message, Date
+    # Choose a wider Date column so the date doesn't wrap vertically.
+    table = Table(data, repeatRows=1, colWidths=[36, 120, 90, 50, 160, 91])
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4B8BBE')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 1), (4, -1), 'LEFT'),
+        ('ALIGN', (5, 1), (5, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#EEF3F8')]),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#B0BCC7')),
+    ])
+    table.setStyle(table_style)
+
+    story.append(table)
+    doc.build(story)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    # Default to inline so browsers open the PDF for viewing. Append ?download=1 to force download popup.
+    download = request.GET.get('download') == '1'
+    disposition = 'attachment' if download else 'inline'
+    response['Content-Disposition'] = f'{disposition}; filename="contacts_report.pdf"'
+    return response
+
+
+
+
