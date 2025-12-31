@@ -436,13 +436,15 @@ def return_pdf(request):
 
     # Set column widths to fit A4 usable width (A4 width 595pt minus margins 24+24 = 547)
     # Columns: ID, Listing, Name, Phone, Message, Date
-    # Choose a wider Date column so the date doesn't wrap vertically.
-    table = Table(data, repeatRows=1, colWidths=[36, 120, 90, 50, 160, 91])
+    # Widen the Phone column so numbers remain on a single line.
+    table = Table(data, repeatRows=1, colWidths=[36, 110, 90, 90, 130, 91])
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4B8BBE')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-        ('ALIGN', (1, 1), (4, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (2, -1), 'LEFT'),
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),
+        ('ALIGN', (4, 1), (4, -1), 'LEFT'),
         ('ALIGN', (5, 1), (5, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 11),
