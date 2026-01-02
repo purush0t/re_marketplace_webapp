@@ -261,62 +261,62 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const contactForm = document.getElementById('contactAgentForm');
-  if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const submitButton = this.querySelector('button[type="submit"]');
-      const originalText = submitButton.textContent;
-      
-      submitButton.disabled = true;
-      submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
-      
-      fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
+  document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactAgentForm');
+    if (contactForm) {
+      contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        if (data.success) {
-          // Show success message
-          const alertDiv = document.createElement('div');
-          alertDiv.className = 'alert alert-success alert-dismissible fade show';
-          alertDiv.setAttribute('role', 'alert');
-          alertDiv.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          `;
-          document.querySelector('.modal-body').insertBefore(alertDiv, document.querySelector('.modal-body').firstChild);
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+        
+        fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
           
-          // Close modal after 2 seconds
-          setTimeout(() => {
-            bootstrap.Modal.getInstance(document.getElementById('contactAgentModal')).hide();
-            contactForm.reset();
-            location.reload();
-          }, 2000);
-        } else {
-          // Show error
-          alert('Error: ' + (data.message || 'Please try again'));
-        }
-      })
-      .catch(error => {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+          if (data.success) {
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+              ${data.message}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.modal-body').insertBefore(alertDiv, document.querySelector('.modal-body').firstChild);
+            
+            // Close modal after 2 seconds
+            setTimeout(() => {
+              bootstrap.Modal.getInstance(document.getElementById('contactAgentModal')).hide();
+              contactForm.reset();
+              location.reload();
+            }, 2000);
+          } else {
+            // Show error
+            alert('Error: ' + (data.message || 'Please try again'));
+          }
+        })
+        .catch(error => {
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
+        });
       });
-    });
-  }
-});
+    }
+  });
 </script>
 
 {% endblock %}

@@ -10,7 +10,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
       {% for listing in featured_listings %}
       <div class="col">
-        {% include "property_card.html" with is_featured=True %}
+        {% include "components/property_card.html" with is_featured=True %}
       </div>
       {% endfor %}
     </div>
@@ -29,7 +29,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
       {% for listing in latest_listings %}
       <div class="col">
-        {% include "property_card.html" with is_featured=False %}
+        {% include "components/property_card.html" with is_featured=False %}
       </div>
       {% endfor %}
     </div>

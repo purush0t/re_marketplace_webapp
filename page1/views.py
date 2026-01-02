@@ -112,7 +112,13 @@ def album(request):
         max_price = int(request.GET['max_price'])
         listings = listings.filter(price__lte=max_price)
     
-    return render(request, 'album_grid.html', {'listings': listings})
+    # Get all unique cities in alphabetical order
+    available_cities = Listing.objects.filter(is_published=True).values_list('city', flat=True).distinct().order_by('city')
+    
+    return render(request, 'album_grid.html', {
+        'listings': listings,
+        'available_cities': available_cities
+    })
 
 
 def featured(request):
